@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Xget 加速服务 · 运行状态</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #070b16;
+      --card: #0f172a;
+      --line: #24314d;
+      --text: #e8eefc;
+      --muted: #8ea0c4;
+      --green: #34d399;
+      --red: #f87171;
+      --amber: #fbbf24;
+      --blue: #60a5fa;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(1100px 560px at 50% -12%, #1b2a4d 0%, transparent 60%),
+        var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    .card {
+      width: min(780px, 100%);
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .012));
+      box-shadow: 0 24px 90px rgba(0, 0, 0, .48);
+    }
+
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #2563eb, #22d3ee);
+      color: #fff;
+      font-weight: 800;
+      font-size: 20px;
+      box-shadow: 0 8px 24px rgba(37, 99, 235, .35);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .badge {
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .status {
+      margin-top: 26px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(2, 6, 23, .35);
+    }
+
+    .status-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+
+    .dot.pending {
+      background: var(--amber);
+      animation: pulse 1.4s infinite;
+    }
+
+    .dot.ok {
+      background: var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    .dot.error {
+      background: var(--red);
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(148, 163, 184, .45); }
+      70% { box-shadow: 0 0 0 10px rgba(148, 163, 184, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(148, 163, 184, 0); }
+    }
+
+    #status-text {
+      font-size: 17px;
+      font-weight: 650;
+    }
+
+    #status-detail {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+      word-break: break-word;
+    }
+
+    #check-meta {
+      margin: 8px 0 0;
+      color: #64748b;
+      font-size: 12px;
+    }
+
+    .uptime-label {
+      margin: 26px 0 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .uptime {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .unit {
+      padding: 14px 10px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(15, 23, 42, .65);
+      text-align: center;
+    }
+
+    .unit strong {
+      display: block;
+      font-size: clamp(24px, 6vw, 34px);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: .5px;
+    }
+
+    .unit span {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin: 24px 0 0;
+    }
+
+    .meta div {
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(2, 6, 23, .25);
+    }
+
+    .meta dt {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .meta dd {
+      margin: 5px 0 0;
+      font-size: 13px;
+      word-break: break-word;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+
+    button,
+    .links a {
+      appearance: none;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 9px 14px;
+      background: rgba(37, 99, 235, .16);
+      color: var(--text);
+      font: inherit;
+      font-size: 13px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease;
+    }
+
+    button:hover,
+    .links a:hover {
+      background: rgba(37, 99, 235, .28);
+      border-color: #3b82f6;
+    }
+
+    button:disabled {
+      opacity: .55;
+      cursor: wait;
+    }
+
+    .links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-left: auto;
+    }
+
+    .note {
+      margin: 22px 0 0;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      color: #64748b;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 560px) {
+      .card { padding: 20px; }
+      .meta { grid-template-columns: 1fr; }
+      .links { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="top">
+      <div class="brand">
+        <div class="logo">X</div>
+        <div>
+          <h1>Xget 加速服务</h1>
+          <p class="subtitle">开发者资源反向代理 · 运行状态</p>
+        </div>
+      </div>
+      <span class="badge">EdgeOne · 海外区域</span>
+    </div>
+
+    <section class="status" aria-live="polite">
+      <div class="status-head">
+        <span id="status-dot" class="dot pending"></span>
+        <span id="status-text">正在检测加速链路…</span>
+      </div>
+      <p id="status-detail">GET /npm/lodash/latest</p>
+      <p id="check-meta"></p>
+    </section>
+
+    <p class="uptime-label">已持续运行</p>
+    <section class="uptime" aria-label="服务运行时长">
+      <div class="unit"><strong id="days">0</strong><span>天</span></div>
+      <div class="unit"><strong id="hours">00</strong><span>小时</span></div>
+      <div class="unit"><strong id="minutes">00</strong><span>分钟</span></div>
+      <div class="unit"><strong id="seconds">00</strong><span>秒</span></div>
+    </section>
+
+    <dl class="meta">
+      <div>
+        <dt>首次上线</dt>
+        <dd id="launch-at">—</dd>
+      </div>
+      <div>
+        <dt>当前访问域名</dt>
+        <dd id="host">—</dd>
+      </div>
+      <div>
+        <dt>加速区域</dt>
+        <dd>海外（不含中国大陆）</dd>
+      </div>
+      <div>
+        <dt>运行模式</dt>
+        <dd>EdgeOne Edge Functions</dd>
+      </div>
+    </dl>
+
+    <div class="actions">
+      <button id="recheck" type="button">重新检测</button>
+      <div class="links">
+        <a href="/gh/xixu-me/Xget" target="_blank" rel="noreferrer">GitHub 加速测试</a>
+        <a href="/npm/lodash/latest" target="_blank" rel="noreferrer">npm 加速测试</a>
+        <a href="https://github.com/xixu-me/Xget" target="_blank" rel="noreferrer">上游仓库</a>
+      </div>
+    </div>
+
+    <p class="note">
+      Xget 基于 EdgeOne Edge Functions 运行，Serverless 平台没有常驻进程。上方计时从服务首次上线时间起算，
+      用于展示服务在线时长，不代表单个运行时实例的 uptime。状态检测通过本站自身的 npm 加速链路完成。
+    </p>
+  </main>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // 首次成功部署到 EdgeOne 的时间（UTC）。如需调整统计起点，只改这一行。
+      var LAUNCH_AT = Date.parse('2026-11-11T21:07:06Z');
+
+      var $ = function (id) { return document.getElementById(id); };
+      var statusDot = $('status-dot');
+      var statusText = $('status-text');
+      var statusDetail = $('status-detail');
+      var checkMeta = $('check-meta');
+      var recheck = $('recheck');
+
+      function pad(value) {
+        return String(value).padStart(2, '0');
+      }
+
+      function renderUptime() {
+        var seconds = Math.max(0, Math.floor((Date.now() - LAUNCH_AT) / 1000));
+        $('days').textContent = String(Math.floor(seconds / 86400));
+        $('hours').textContent = pad(Math.floor((seconds % 86400) / 3600));
+        $('minutes').textContent = pad(Math.floor((seconds % 3600) / 60));
+        $('seconds').textContent = pad(seconds % 60);
+      }
+
+      function setStatus(kind, text, detail) {
+        statusDot.className = 'dot ' + kind;
+        statusText.textContent = text;
+        statusDetail.textContent = detail || '';
+      }
+
+      function nowText() {
+        return new Date().toLocaleString('zh-CN', { hour12: false });
+      }
+
+      async function check() {
+        recheck.disabled = true;
+        setStatus('pending', '正在检测加速链路…', 'GET /npm/lodash/latest');
+
+        var started = performance.now();
+
+        try {
+          var response = await fetch('/npm/lodash/latest', {
+            cache: 'no-store',
+            headers: { accept: 'application/json' }
+          });
+          var elapsed = Math.round(performance.now() - started);
+
+          if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
+          }
+
+          var data = await response.json();
+          if (!data || !data.name) {
+            throw new Error('响应内容不是有效的 npm 元数据');
+          }
+
+          setStatus(
+            'ok',
+            '服务运行正常',
+            '自检通过：HTTP ' + response.status + ' · ' + elapsed + ' ms · 上游返回 ' +
+              data.name + '@' + data.version
+          );
+        } catch (error) {
+          var message = error && error.message ? error.message : String(error);
+          setStatus('error', '加速链路异常', '自检失败：' + message);
+        } finally {
+          checkMeta.textContent = '最近检测：' + nowText();
+          recheck.disabled = false;
+        }
+      }
+
+      $('launch-at').textContent = new Date(LAUNCH_AT).toLocaleString('zh-CN', {
+        hour12: false
+      });
+      $('host').textContent = location.host || 'xget.opccii.com';
+
+      renderUptime();
+      window.setInterval(renderUptime, 1000);
+      recheck.addEventListener('click', check);
+      window.setTimeout(check, 250);
+    })();
+  </script>
+</body>
+</html>
