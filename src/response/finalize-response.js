@@ -150,6 +150,11 @@ async function finalizeSuccessfulResponse({
 
   if (rewrittenContentLength !== null) {
     headers.set('Content-Length', String(rewrittenContentLength));
+    // The body has been buffered and rewritten, so upstream transfer/encoding
+    // headers no longer describe it. Keeping Transfer-Encoding alongside the
+    // new Content-Length makes some runtimes reset the client connection.
+    headers.delete('Transfer-Encoding');
+    headers.delete('Content-Encoding');
   }
 
   const requestCachePolicy = resolveCachePolicy({
