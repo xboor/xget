@@ -148,12 +148,14 @@ async function finalizeSuccessfulResponse({
 
   const headers = new Headers(response.headers);
 
+  // Transfer-Encoding is hop-by-hop. Forwarding the upstream value while the
+  // runtime re-chunks the stream makes EdgeOne reset the client connection.
+  headers.delete('Transfer-Encoding');
+
   if (rewrittenContentLength !== null) {
     headers.set('Content-Length', String(rewrittenContentLength));
-    // The body has been buffered and rewritten, so upstream transfer/encoding
-    // headers no longer describe it. Keeping Transfer-Encoding alongside the
-    // new Content-Length makes some runtimes reset the client connection.
-    headers.delete('Transfer-Encoding');
+    // The body has been buffered and rewritten, so the upstream encoding no
+    // longer describes it.
     headers.delete('Content-Encoding');
   }
 

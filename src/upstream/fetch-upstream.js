@@ -110,7 +110,10 @@ function createFetchOptions({
     });
   }
 
-  requestHeaders.set('Accept-Encoding', 'gzip, deflate, br');
+  // EdgeOne's runtime resets streamed responses that still carry upstream
+  // compression metadata. Ask for an identity body so the runtime does not
+  // have to reconcile a decompressed stream with a stale Content-Encoding.
+  requestHeaders.set('Accept-Encoding', 'identity');
   requestHeaders.set('Connection', 'keep-alive');
   requestHeaders.set('User-Agent', 'Wget/1.21.3');
 
