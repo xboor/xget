@@ -1,12 +1,8 @@
 name: Commit Lint
 
+# TEMP: commit lint is manual while the full CI pipeline is paused.
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

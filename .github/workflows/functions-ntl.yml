@@ -1,12 +1,7 @@
 name: Deploy to Netlify
 
+# TEMP: auto-deploy disabled; EdgeOne is the only active target.
 on:
-  workflow_run:
-    workflows: ["Sync to Pages and Functions"]
-    types:
-      - completed
-    branches:
-      - main
   workflow_dispatch:
 
 concurrency:
@@ -20,7 +15,7 @@ jobs:
     permissions:
       contents: read
       deployments: write
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'workflow_dispatch' }}
 
     steps:
       - name: Checkout functions branch

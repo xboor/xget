@@ -1,12 +1,7 @@
 name: Deploy to Cloudflare Workers
 
+# TEMP: auto-deploy disabled; EdgeOne is the only active target.
 on:
-  workflow_run:
-    workflows: ["CI"]
-    types:
-      - completed
-    branches:
-      - main
   workflow_dispatch:
 
 concurrency:
@@ -23,7 +18,7 @@ jobs:
     permissions:
       contents: read
       deployments: write
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.head_repository.full_name == github.repository) }}
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     steps:
       - name: Checkout main branch
         uses: actions/checkout@v7
